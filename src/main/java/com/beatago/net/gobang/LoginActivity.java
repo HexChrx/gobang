@@ -188,7 +188,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(email, password, this);
             mAuthTask.execute((Void) null);
         }
     }
@@ -301,9 +301,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         private final String mEmail;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
+        private LoginActivity parent;
+
+        UserLoginTask(String email, String password, LoginActivity parent) {
             mEmail = email;
             mPassword = password;
+            this.parent = parent;
         }
 
         @Override
@@ -314,12 +317,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if (!userService.login(this.mEmail, this.mPassword)) {
                    switch (userService.getLoginState()) {
                        case com.beatago.net.core.Status.LOGIN_PASSPORD_ERROR:
-                           Toast.makeText(getApplicationContext(), "密码或用户名错误",
-                                   Toast.LENGTH_SHORT).show();
+                           parent.runOnUiThread(new Runnable() {
+                               public void run() {
+                                   Toast.makeText(parent.getBaseContext(), "密码或用户名错误", Toast.LENGTH_LONG).show();
+                               }
+                           });
                            break;
                        case com.beatago.net.core.Status.LOGIN_TIME_OUT:
-                           Toast.makeText(getApplicationContext(), "登录超时，请稍后重试",
-                               Toast.LENGTH_SHORT).show();
+                           parent.runOnUiThread(new Runnable() {
+                               public void run() {
+                                   Toast.makeText(parent.getBaseContext(), "登录超时，请稍后重试", Toast.LENGTH_LONG).show();
+                               }
+                           });
                            break;
                    }
                    return false;

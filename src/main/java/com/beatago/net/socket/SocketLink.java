@@ -9,7 +9,7 @@ import java.net.Socket;
 
 public class SocketLink extends Base {
     private static final int PORT = 8741;
-    private static final String IP = "127.0.0.1";
+    private static final String IP = "10.95.25.20";
 
     private PrintWriter writer;
     private BufferedReader reader;
@@ -24,6 +24,7 @@ public class SocketLink extends Base {
         this.writer = new PrintWriter(os);//将输出流包装为打印流
         InputStream is = socket.getInputStream();
         this.reader = new BufferedReader(new InputStreamReader(is));
+        new Read().start();
     }
 
     public static SocketLink getInstence () {
@@ -34,10 +35,8 @@ public class SocketLink extends Base {
         } catch (IOException e) {
             SocketLink.instence = null;
             Log.logE(e.getMessage());
-            e.printStackTrace();
-        } finally {
-            return SocketLink.instence;
         }
+        return SocketLink.instence;
     }
 
     class Read extends Thread {
@@ -47,6 +46,7 @@ public class SocketLink extends Base {
             String info;
             try {
                 while ((info = reader.readLine()) != null) {
+                    android.util.Log.d("debug", info);
                     new Thread(new MessageProcess(info)).start();
                 }
             } catch (IOException e) {
